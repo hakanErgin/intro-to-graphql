@@ -24,15 +24,26 @@ const newProduct = (_, args, ctx) => {
 }
 
 const updateProduct = (_, args) => {
-  return Product.findOneAndUpdate(args.id, args.input, { new: true })
+  return Product.findByIdAndUpdate(args.id, args.input, { new: true })
+    .lean()
+    .exec()
+}
+
+const removeProduct = (_, args) => {
+  return Product.findByIdAndRemove(args.id)
     .lean()
     .exec()
 }
 
 export default {
   Query: { products, product },
-  Mutation: { newProduct, updateProduct },
+  Mutation: { newProduct, updateProduct, removeProduct },
   Product: {
-    __resolveType(product) {}
+    __resolveType(product) {},
+    createdBy(product) {
+      return User.findById(product.createdBy)
+        .lean()
+        .exec()
+    }
   }
 }
